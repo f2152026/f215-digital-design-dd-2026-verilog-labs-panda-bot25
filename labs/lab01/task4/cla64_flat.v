@@ -17,7 +17,9 @@ module cla64_flat(
 
   // ---------------------------------------------------------------------
   // Step 1: generate/propagate signals -- WORKED EXAMPLE
-  //
+  
+
+
   // This part is genuinely uniform across all 64 bits (same operation at
   // every position), so a generate-for loop is the right tool here.
   // `genvar` is a compile-time-only loop variable -- it does not exist as
@@ -34,7 +36,29 @@ module cla64_flat(
 
   // ---------------------------------------------------------------------
   // Step 2: the 64 direct carry equations -- YOUR TASK
-  //
+  
+
+  genvar k, j;
+  generate
+    for (k = 1; k <= 64; k = k + 1) begin : gen_carry
+      if (k == 1) begin : base_case
+        // c[1] = g[0] | (p[0] & cin)
+        assign #(2) c[1] = g[0] | (p[0] & cin);
+      end else begin : general_case
+        wire [k-1:0] term;  // term[0..k-2] = g-terms, term[k-1] = cin-term
+        for (j = 0; j <= k-2; j = j + 1) begin : gen_terms
+          // term[j] = (p[k-1] & p[k-2] & ... & p[j+1]) & g[j]
+          assign #(2) term[j] = (&p[k-1:j+1]) & g[j];
+        end
+        // final term: (p[k-1] & ... & p[0]) & cin
+        assign #(2) term[k-1] = (&p[k-1:0]) & cin;
+        assign #(2) c[k] = g[k-1] | (|term);
+      end
+    end
+  endgenerate
+
+  assign cout = c[64];
+
   // Unlike P and G, these are NOT uniform: Ck needs k+1 product terms,
   // each one literal longer than the last (see Tutorial 3's derivation).
   // Writing all 64 of these by hand is extremely tedious and error-prone,
@@ -65,6 +89,8 @@ module cla64_flat(
 
   // ---------------------------------------------------------------------
   // Step 3: sum bits
+
+  assign #(2) sum = p ^ {c[63:1], cin};
   // ---------------------------------------------------------------------
   // TODO: assign #(2) sum = p ^ {c[63:1], cin};
 
