@@ -43,10 +43,10 @@ module cla4(
   and #(2) (g2, a[2], b[2]);
   and #(2) (g3, a[3], b[3]);
 
-wire t1_0;
-wire t2_0, t2_1;
-wire t3_0, t3_1, t3_2;
-wire t4_0, t4_1, t4_2, t4_3;
+  wire t1_0;
+  wire t2_0, t2_1;
+  wire t3_0, t3_1, t3_2;
+  wire t4_0, t4_1, t4_2, t4_3;
 
   and #(2) (t1_0, p0, cin);
   or #(2) (c1, g0, t1_0);
